@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import logging
 from collections.abc import Sequence
@@ -146,7 +148,7 @@ class RandomCutForestModel:
         return result
 
     @classmethod
-    def from_dict(cls, args: RCFArgs) -> "RandomCutForestModel":
+    def from_dict(cls, args: RCFArgs) -> RandomCutForestModel:
         if args.get("forest") is not None:
             args["forest"] = cls._deserialize_forest(args["forest"])  # type: ignore
         return cls(**args)
@@ -186,7 +188,6 @@ class RandomCutForestModel:
 
         """
         return self.forest.getAnomalyScore(self._convert_to_java_array(point))
-        # return self.forest.getAnomalyScore(point)
 
     def update(self, point: Sequence[float]):
         """
@@ -198,7 +199,6 @@ class RandomCutForestModel:
             Point with shingle size
         """
         self.forest.update(self._convert_to_java_array(point))
-        # self.forest.update(point)
 
     def impute(self, point: Sequence[float]) -> list[float]:
         """
