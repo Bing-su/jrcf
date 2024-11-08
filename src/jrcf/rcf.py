@@ -1,7 +1,7 @@
 import copy
 import logging
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, TypedDict
 
 import jpype
 import numpy as np
@@ -18,6 +18,19 @@ from com.fasterxml.jackson.databind import (  # type: ignore [reportMissingImpor
     ObjectMapper,
 )
 from jpype.types import JArray, JDouble
+
+
+class RCFArgs(TypedDict):
+    forest: RandomCutForest | None
+    dimensions: int
+    shingle_size: int
+    num_trees: int
+    sample_size: int
+    output_after: int | None
+    random_seed: int | None
+    parallel_execution_enabled: bool
+    thread_pool_size: int | None
+    lam: float | None
 
 
 class RandomCutForestModel:
@@ -99,6 +112,45 @@ class RandomCutForestModel:
 
             self.forest = builder.build()
 
+    @staticmethod
+    def _serialize_forest(forest: RandomCutForest) -> str:
+        mapper = RandomCutForestMapper()
+        mapper.setSaveExecutorContextEnabled(True)
+        json_mapper = ObjectMapper()
+        forest_state = mapper.toState(forest)
+        json_string = json_mapper.writeValueAsString(forest_state)
+        return str(json_string)
+
+    @staticmethod
+    def _deserialize_forest(string: str) -> RandomCutForest:
+        mapper = RandomCutForestMapper()
+        json_mapper = ObjectMapper()
+        forest_state = json_mapper.readValue(string, RandomCutForestState)
+        return mapper.toModel(forest_state)
+
+    def to_dict(self) -> RCFArgs:
+        result: RCFArgs = {
+            "forest": None,
+            "dimensions": self.dimensions,
+            "shingle_size": self.shingle_size,
+            "num_trees": self.num_trees,
+            "sample_size": self.sample_size,
+            "output_after": self.output_after,
+            "random_seed": self.random_seed,
+            "parallel_execution_enabled": self.parallel_execution_enabled,
+            "thread_pool_size": self.thread_pool_size,
+            "lam": self.lam,
+        }
+        if self.forest is not None:
+            result["forest"] = self._serialize_forest(self.forest)
+        return result
+
+    @classmethod
+    def from_dict(cls, args: RCFArgs) -> "RandomCutForestModel":
+        if args.get("forest") is not None:
+            args["forest"] = cls._deserialize_forest(args["forest"])  # type: ignore
+        return cls(**args)
+
     def __getstate__(self) -> dict[str, Any]:
         state = self.__dict__.copy()
         if state.get("forest") is None:
@@ -106,25 +158,13 @@ class RandomCutForestModel:
 
         forest = state.pop("forest")
         state = copy.deepcopy(state)
-        mapper = RandomCutForestMapper()
-        mapper.setSaveExecutorContextEnabled(True)
-        json_mapper = ObjectMapper()
-        forest_state = mapper.toState(forest)
-        json_string = json_mapper.writeValueAsString(forest_state)
-        state["forest"] = str(json_string)
+        state["forest"] = self._serialize_forest(forest)
         return state
 
     def __setstate__(self, state: dict[str, Any]):
         json_string: str | None = state.get("forest")
-        if json_string is None:
-            self.__dict__.update(state)
-            return
-
-        mapper = RandomCutForestMapper()
-        json_mapper = ObjectMapper()
-        forest_state = json_mapper.readValue(json_string, RandomCutForestState)
-        forest = mapper.toModel(forest_state)
-        state["forest"] = forest
+        if isinstance(json_string, str):
+            state["forest"] = self._deserialize_forest(json_string)
         self.__dict__.update(state)
 
     def _convert_to_java_array(self, point: Sequence[float]) -> JArray:
