@@ -1,3 +1,4 @@
+import copy
 import logging
 from collections.abc import Sequence
 from typing import Any
@@ -8,6 +9,13 @@ import numpy as np
 # java imports
 from com.amazon.randomcutforest import (  # type: ignore [reportMissingImports]
     RandomCutForest,
+)
+from com.amazon.randomcutforest.state import (  # type: ignore [reportMissingImports]
+    RandomCutForestMapper,
+    RandomCutForestState,
+)
+from com.fasterxml.jackson.databind import (  # type: ignore [reportMissingImports]
+    ObjectMapper,
 )
 from jpype.types import JArray, JDouble
 
@@ -90,6 +98,34 @@ class RandomCutForestModel:
                 builder = builder.randomSeed(self.random_seed)
 
             self.forest = builder.build()
+
+    def __getstate__(self) -> dict[str, Any]:
+        state = self.__dict__.copy()
+        if state.get("forest") is None:
+            return state
+
+        forest = state.pop("forest")
+        state = copy.deepcopy(state)
+        mapper = RandomCutForestMapper()
+        mapper.setSaveExecutorContextEnabled(True)
+        json_mapper = ObjectMapper()
+        forest_state = mapper.toState(forest)
+        json_string = json_mapper.writeValueAsString(forest_state)
+        state["forest"] = str(json_string)
+        return state
+
+    def __setstate__(self, state: dict[str, Any]):
+        json_string: str | None = state.get("forest")
+        if json_string is None:
+            self.__dict__.update(state)
+            return
+
+        mapper = RandomCutForestMapper()
+        json_mapper = ObjectMapper()
+        forest_state = json_mapper.readValue(json_string, RandomCutForestState)
+        forest = mapper.toModel(forest_state)
+        state["forest"] = forest
+        self.__dict__.update(state)
 
     def _convert_to_java_array(self, point: Sequence[float]) -> JArray:
         return JArray.of(np.array(point), JDouble)
