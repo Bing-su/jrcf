@@ -5,9 +5,18 @@ description = "AWS's Java Rancom Cut Forest"
 authors = [
     { name = "Dowon", email = "ks2515@naver.com" },
 ]
-dependencies = []
+dependencies = ["jpype1", "numpy"]
 readme = "README.md"
 requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pre-commit-uv",
+]
+test = [
+    "pytest",
+]
 
 [build-system]
 requires = ["pdm-backend"]
@@ -16,3 +25,39 @@ build-backend = "pdm.backend"
 [tool.rye]
 managed = true
 dev-dependencies = []
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "A",
+    "B",
+    "C4",
+    "C90",
+    "E",
+    "EM",
+    "F",
+    "FA",
+    "FBT",
+    "FURB",
+    "I001",
+    "ISC",
+    "N",
+    "PD",
+    "PERF",
+    "PIE",
+    "PL",
+    "PT",
+    "PTH",
+    "RET",
+    "RUF",
+    "S",
+    "SIM",
+    "T20",
+    "TRY",
+    "UP",
+    "W",
+]
+ignore = ["E501", "PLR2004"]
+unfixable = ["F401"]
