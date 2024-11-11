@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 from collections.abc import Sequence
-from typing import Any, TypeAlias, TypedDict
+from typing import TYPE_CHECKING, Any, TypeAlias, TypedDict
 
 import numpy as np
 
@@ -18,6 +18,9 @@ from com.fasterxml.jackson.databind import (  # type: ignore [reportMissingImpor
     ObjectMapper,
 )
 from jpype.types import JArray, JFloat
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 Array1D: TypeAlias = Sequence[float] | np.ndarray
 
@@ -198,34 +201,6 @@ class RandomCutForestModel:
     def _convert_to_java_array(self, point: Array1D) -> JArray:
         return JArray.of(np.array(point), JFloat)
 
-    def score(self, point: Array1D) -> float:
-        """
-        Compute an anomaly score for the given point.
-
-        Parameters
-        ----------
-        point: 1-d array-like
-            A data point with shingle size
-
-        Returns
-        -------
-        float
-            The anomaly score for the given point
-
-        """
-        return self.forest.getAnomalyScore(self._convert_to_java_array(point))
-
-    def update(self, point: Array1D):
-        """
-        Update the model with the data point.
-
-        Parameters
-        ----------
-        point: 1-d array-like
-            Point with shingle size
-        """
-        self.forest.update(self._convert_to_java_array(point))
-
     def get_shingle_size(self) -> int:
         """
         Returns
@@ -233,4 +208,82 @@ class RandomCutForestModel:
         int
             Shingle size of random cut trees.
         """
-        return self.forest.getDimensions()
+        return int(self.forest.getDimensions())
+
+    def get_thread_pool_size(self) -> int:
+        return int(self.forest.getThreadPoolSize())
+
+    def transform_to_shingled_point(self, point: Array1D) -> npt.NDArray[np.float32]:
+        """
+        used for scoring and other function, expands to a shingled point in either case performs a clean copy
+
+        Parameters
+        ----------
+        point: 1-d array-like
+
+        Returns
+        -------
+        1-d np.array of np.float32
+        """
+        transformed = self.forest.transformToShingledPoint(
+            self._convert_to_java_array(point)
+        )
+        "transformed is a java array of JFloat"
+        return np.array(transformed)
+
+    def score(self, point: Array1D) -> float:
+        """
+        Compute an anomaly score for the given point.
+
+        Parameters
+        ----------
+        point: 1-d array-like
+            A data point with input dimensions
+
+        Returns
+        -------
+        float
+            The anomaly score for the given point
+
+        """
+        arr = self._convert_to_java_array(point)
+        score = self.forest.getAnomalyScore(arr)
+        "score is JDouble"
+        return float(score)
+
+    def update(self, point: Array1D) -> None:
+        """
+        Update the model with the data point.
+
+        Parameters
+        ----------
+        point: 1-d array-like
+            A data point with input dimensions
+        """
+        self.forest.update(self._convert_to_java_array(point))
+
+    def approximate_anomaly_score(self, point: Array1D) -> float:
+        """
+        Anomaly score evaluated sequentially with option of early stopping the early
+        stopping parameter precision gives an approximate solution in the range
+        (1-precision)*score(q) - precision, (1+precision)*score(q) + precision for the
+        score of a point q. In this function z is hardcoded to 0.1. If this function
+        is used, then not all the trees will be used in evaluation (but they have to
+        be updated anyways, because they may be used for the next q). The advantage
+        is that "almost certainly" anomalies/non-anomalies can be detected easily
+        with few trees.
+
+        Parameters
+        ----------
+        point: 1-d array-like
+            A data point with input dimensions
+
+        Returns
+        -------
+        float
+            anomaly score with early stopping with z=0.1
+        """
+        arr = self._convert_to_java_array(point)
+        score = self.forest.getApproximateAnomalyScore(arr)
+        "score is JDouble"
+        return float(score)

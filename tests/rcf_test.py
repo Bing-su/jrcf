@@ -94,8 +94,10 @@ def test_train(dim: int):
     data = np.random.random((10, dim))
     for point in data:
         score = model.score(point)
+        ascore = model.approximate_anomaly_score(point)
         model.update(point)
-        assert isinstance(score, float)
+        assert type(score) is float
+        assert type(ascore) is float
         assert score >= 0.0
 
 
@@ -125,3 +127,27 @@ def test_repr():
 
     assert "RandomCutForestModel(" in repr_str
     assert "dimensions=5" in repr_str
+
+
+@given(dimensions=st.integers(1, 10), shingle_size=st.integers(1, 10))
+def test_get_shingle_size(dimensions: int, shingle_size: int):
+    model = RandomCutForestModel(dimensions=dimensions, shingle_size=shingle_size)
+    size = model.get_shingle_size()
+    assert isinstance(size, int)
+    assert size == dimensions * shingle_size
+
+
+def test_thread_pool_size():
+    model = RandomCutForestModel()
+    thread_pool_size = model.get_thread_pool_size()
+    assert isinstance(thread_pool_size, int)
+
+
+@given(dimensions=st.integers(1, 10), shingle_size=st.integers(1, 10))
+def test_transform_to_shingled_point(dimensions: int, shingle_size: int):
+    model = RandomCutForestModel(dimensions=dimensions, shingle_size=shingle_size)
+    point = np.random.random(dimensions)
+    shingled_point = model.transform_to_shingled_point(point)
+    assert isinstance(shingled_point, np.ndarray)
+    assert shingled_point.dtype == np.float32
+    assert shingled_point.shape == (dimensions * shingle_size,)
