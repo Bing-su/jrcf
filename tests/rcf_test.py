@@ -132,13 +132,17 @@ def test_input_type():
     model = RandomCutForestModel(dimensions=5)
 
     arr = np.random.random(5)
+    model.score(arr)
     model.update(arr)
 
     arr2 = np.random.random(5).tolist()
+    model.score(arr2)
     model.update(arr2)
 
     arr3 = tuple(np.random.random(5).tolist())
+    model.score(arr3)
     model.update(arr3)
 
     arr4 = UserList(np.random.random(5).tolist())
+    model.score(arr4)
     model.update(arr4)
