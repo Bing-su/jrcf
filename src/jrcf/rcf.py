@@ -202,29 +202,6 @@ class RandomCutForestModel:
         """
         self.forest.update(self._convert_to_java_array(point))
 
-    def impute(self, point: Sequence[float]) -> list[float]:
-        """
-        Given a point with missing values, return a new point with the missing values imputed. Each tree in the forest
-        individual produces an imputed value. For 1-dimensional points, the median imputed value is returned. For
-        points with more than 1 dimension, the imputed point with the 25th percentile anomaly score is returned.
-
-        Parameters
-        ----------
-        point: List[float]
-            The point with shingle size
-
-        Returns
-        -------
-        List[float]
-            The imputed point.
-        """
-
-        num_missing = np.isnan(point).sum()
-        if num_missing == 0:
-            return list(point)
-        missing_index = np.argwhere(np.isnan(point)).flatten()
-        return list(self.forest.imputeMissingValues(point, missing_index))
-
     def get_shingle_size(self) -> int:
         """
         Returns
