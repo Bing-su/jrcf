@@ -150,6 +150,11 @@ class RandomCutForestModel:
 
     @staticmethod
     def _serialize_forest(forest: RandomCutForest) -> str:
+        """
+        Reference
+        ---------
+        https://github.com/aws/random-cut-forest-by-aws/blob/4.2.0-java/Java/examples/src/main/java/com/amazon/randomcutforest/examples/serialization/JsonExample.java
+        """
         mapper = RandomCutForestMapper()
         mapper.setSaveExecutorContextEnabled(True)
         json_mapper = ObjectMapper()
@@ -165,6 +170,9 @@ class RandomCutForestModel:
         return mapper.toModel(forest_state)
 
     def to_dict(self) -> RCFArgs:
+        """
+        Convert this instance to a dictionary.
+        """
         return {
             "forest": self._serialize_forest(self.forest),
             "dimensions": self.dimensions,
@@ -180,6 +188,9 @@ class RandomCutForestModel:
 
     @classmethod
     def from_dict(cls, args: RCFArgs) -> RandomCutForestModel:
+        """
+        Create RandomCutForestModel from dictionary of arguments
+        """
         if args.get("forest") is not None:
             args["forest"] = cls._deserialize_forest(args["forest"])  # type: ignore
         return cls(**args)
