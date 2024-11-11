@@ -131,8 +131,8 @@ class RandomCutForestModel:
         return mapper.toModel(forest_state)
 
     def to_dict(self) -> RCFArgs:
-        result: RCFArgs = {
-            "forest": None,
+        return {
+            "forest": self._serialize_forest(self.forest),
             "dimensions": self.dimensions,
             "shingle_size": self.shingle_size,
             "num_trees": self.num_trees,
@@ -143,9 +143,6 @@ class RandomCutForestModel:
             "thread_pool_size": self.thread_pool_size,
             "lam": self.lam,
         }
-        if self.forest is not None:
-            result["forest"] = self._serialize_forest(self.forest)
-        return result
 
     @classmethod
     def from_dict(cls, args: RCFArgs) -> RandomCutForestModel:
@@ -155,18 +152,14 @@ class RandomCutForestModel:
 
     def __getstate__(self) -> dict[str, Any]:
         state = self.__dict__.copy()
-        if state.get("forest") is None:
-            return state
-
         forest = state.pop("forest")
         state = copy.deepcopy(state)
         state["forest"] = self._serialize_forest(forest)
         return state
 
     def __setstate__(self, state: dict[str, Any]):
-        json_string: str | None = state.get("forest")
-        if isinstance(json_string, str):
-            state["forest"] = self._deserialize_forest(json_string)
+        json_string: str = state["forest"]
+        state["forest"] = self._deserialize_forest(json_string)
         self.__dict__.update(state)
 
     def _convert_to_java_array(self, point: Sequence[float]) -> JArray:
