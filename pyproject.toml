@@ -14,9 +14,12 @@ license.text = "Apache-2.0"
 dev = [
     "ruff",
     "pre-commit-uv",
+    "tqdm",
 ]
 test = [
     "pytest",
+    "pytest-cov",
+    "hypothesis",
 ]
 
 [build-system]
@@ -29,6 +32,9 @@ dev-dependencies = []
 
 [tool.ruff]
 target-version = "py310"
+
+[tool.ruff.per-file-ignores]
+"tests/*.py" = ["S101"]
 
 [tool.ruff.lint]
 select = [
