@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import copy
-import logging
 from collections.abc import Sequence
 from typing import Any, TypeAlias, TypedDict
 
-import jpype
 import numpy as np
 
 # java imports
@@ -212,17 +210,3 @@ class RandomCutForestModel:
             Shingle size of random cut trees.
         """
         return self.forest.getDimensions()
-
-    def get_attribution(self, point: Array1D) -> tuple[list[float], list[float]]:
-        point = self._convert_to_java_array(point)
-        try:
-            attribution_di_vec: Any = self.forest.getAnomalyAttribution(point)
-            low: list[float] = list(attribution_di_vec.low)
-            high: list[float] = list(attribution_di_vec.high)
-        except jpype.JException as exception:
-            logging.info("Error when loading the model: %s", exception.message())
-            logging.info("Stack track: %s", exception.stacktrace())
-            # Throw it back
-            raise
-        else:
-            return low, high
