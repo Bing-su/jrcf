@@ -56,27 +56,36 @@ class RandomCutForestModel:
         lam: float | None = None,
     ):
         """
-        https://github.com/aws/random-cut-forest-by-aws/tree/4.2.0-java/Java
+        Initialize the RandomCutForest model.
 
-        Args:
-            forest (RandomCutForest, optional): A pre-trained RandomCutForest model. Used for pickling. Defaults to None.
-            dimensions (int): The number of dimensions in the input data. Defaults to 1.
-            shingle_size (int): The number of contiguous observations across all the input variables that would be used for analysis. Defaults to 8.
-            num_trees (int): The number of trees in this forest. Defaults to 50.
-            sample_size (int): The sample size used by stream samplers in this forest. Defaults to 256.
-            output_after (int, optional): The number of points required by stream samplers before results are returned. if None, `0.25 * sample_size` is used. Defaults to None.
-            random_seed (int, optional): A seed value used to initialize the random number generators in this forest. Defaults to None.
-            parallel_execution_enabled (bool):
-              If true, then the forest will create an internal threadpool.
-              Forest updates and traversals will be submitted to this threadpool, and individual trees will be updated or traversed in parallel.
-              For larger shingle sizes, dimensions, and number of trees, parallelization may improve throughput.
-              We recommend users benchmark against their target use case.
-                Defaults to True.
-            thread_pool_size (int, optional): The number of threads to use in the internal threadpool. Defaults to None.
-            lam (float, optional):
-              The decay factor used by stream samplers in this forest.
-              see: https://github.com/aws/random-cut-forest-by-aws/tree/4.2.0-java/Java#choosing-a-timedecay-value-for-your-application
-              if None, Default value is `1.0 / (10 * sample_size)`. Defaults to None.
+        Parameters
+        ----------
+        forest : RandomCutForest, optional
+            A pre-trained RandomCutForest model. Used for pickling. Defaults to None.
+        dimensions : int, optional
+            The number of dimensions in the input data. Defaults to 1.
+        shingle_size : int, optional
+            The number of contiguous observations across all the input variables that would be used for analysis. Defaults to 8.
+        num_trees : int, optional
+            The number of trees in this forest. Defaults to 50.
+        sample_size : int, optional
+            The sample size used by stream samplers in this forest. Defaults to 256.
+        output_after : int, optional
+            The number of points required by stream samplers before results are returned. If None, `0.25 * sample_size` is used. Defaults to None.
+        random_seed : int, optional
+            A seed value used to initialize the random number generators in this forest. Defaults to None.
+        parallel_execution_enabled : bool, optional
+            If True, then the forest will create an internal threadpool. Forest updates and traversals will be submitted to this threadpool, and individual trees will be updated or traversed in parallel. For larger shingle sizes, dimensions, and number of trees, parallelization may improve throughput. We recommend users benchmark against their target use case. Defaults to True.
+        thread_pool_size : int, optional
+            The number of threads to use in the internal threadpool. Defaults to None.
+        lam : float, optional
+            The decay factor used by stream samplers in this forest.
+            see: https://github.com/aws/random-cut-forest-by-aws/tree/4.2.0-java/Java#choosing-a-timedecay-value-for-your-application
+            If None, default value is `1.0 / (10 * sample_size)`. Defaults to None.
+
+        References
+        ----------
+        https://github.com/aws/random-cut-forest-by-aws/tree/4.2.0-java/Java
         """
         self.dimensions = dimensions
         self.shingle_size = shingle_size
