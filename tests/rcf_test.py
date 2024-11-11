@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import pickle
+from collections import UserList
 
 import numpy as np
 import pytest
@@ -125,3 +126,19 @@ def test_pickling(dim: int, protocol: int):
 
     for point in data:
         unpickled.update(point)
+
+
+def test_input_type():
+    model = RandomCutForestModel(dimensions=5)
+
+    arr = np.random.random(5)
+    model.update(arr)
+
+    arr2 = np.random.random(5).tolist()
+    model.update(arr2)
+
+    arr3 = tuple(np.random.random(5).tolist())
+    model.update(arr3)
+
+    arr4 = UserList(np.random.random(5).tolist())
+    model.update(arr4)

@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import logging
 from collections.abc import Sequence
-from typing import Any, TypedDict
+from typing import Any, TypeAlias, TypedDict
 
 import jpype
 import numpy as np
@@ -20,6 +20,8 @@ from com.fasterxml.jackson.databind import (  # type: ignore [reportMissingImpor
     ObjectMapper,
 )
 from jpype.types import JArray, JDouble
+
+Array1D: TypeAlias = Sequence[float] | np.ndarray
 
 
 class RCFArgs(TypedDict):
@@ -171,16 +173,16 @@ class RandomCutForestModel:
         state["forest"] = self._deserialize_forest(json_string)
         self.__dict__.update(state)
 
-    def _convert_to_java_array(self, point: Sequence[float]) -> JArray:
+    def _convert_to_java_array(self, point: Array1D) -> JArray:
         return JArray.of(np.array(point), JDouble)
 
-    def score(self, point: Sequence[float]) -> float:
+    def score(self, point: Array1D) -> float:
         """
         Compute an anomaly score for the given point.
 
         Parameters
         ----------
-        point: Sequence[float]
+        point: 1-d array-like
             A data point with shingle size
 
         Returns
@@ -191,13 +193,13 @@ class RandomCutForestModel:
         """
         return self.forest.getAnomalyScore(self._convert_to_java_array(point))
 
-    def update(self, point: Sequence[float]):
+    def update(self, point: Array1D):
         """
         Update the model with the data point.
 
         Parameters
         ----------
-        point: Sequence[float]
+        point: 1-d array-like
             Point with shingle size
         """
         self.forest.update(self._convert_to_java_array(point))
@@ -211,9 +213,7 @@ class RandomCutForestModel:
         """
         return self.forest.getDimensions()
 
-    def get_attribution(
-        self, point: Sequence[float]
-    ) -> tuple[list[float], list[float]]:
+    def get_attribution(self, point: Array1D) -> tuple[list[float], list[float]]:
         point = self._convert_to_java_array(point)
         try:
             attribution_di_vec: Any = self.forest.getAnomalyAttribution(point)
