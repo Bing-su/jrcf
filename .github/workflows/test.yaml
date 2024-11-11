@@ -12,6 +12,9 @@ on:
   schedule:
     - cron: "0 0 * * 0"
 
+  workflow_dispatch:
+  workflow_call:
+
 jobs:
   test:
     name: Pytest
@@ -30,6 +33,7 @@ jobs:
         with:
           distribution: "temurin"
           java-version: ${{ matrix.java-version }}
+          java-package: "jre"
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v3
