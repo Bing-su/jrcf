@@ -17,7 +17,7 @@ from com.amazon.randomcutforest.state import (  # type: ignore [reportMissingImp
 from com.fasterxml.jackson.databind import (  # type: ignore [reportMissingImports]
     ObjectMapper,
 )
-from jpype.types import JArray, JDouble
+from jpype.types import JArray, JFloat
 
 Array1D: TypeAlias = Sequence[float] | np.ndarray
 
@@ -196,7 +196,7 @@ class RandomCutForestModel:
         return cls(**args)
 
     def _convert_to_java_array(self, point: Array1D) -> JArray:
-        return JArray.of(np.array(point), JDouble)
+        return JArray.of(np.array(point), JFloat)
 
     def score(self, point: Array1D) -> float:
         """
