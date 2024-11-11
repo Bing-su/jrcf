@@ -123,6 +123,31 @@ class RandomCutForestModel:
 
             self.forest = builder.build()
 
+    def __rich_repr__(self):
+        m = self.to_dict()
+        for k, v in m.items():
+            if k == "forest":
+                continue
+            yield k, v
+
+    def __repr__(self) -> str:
+        pair = []
+        for k, v in self.__rich_repr__():
+            pair.append(f"{k}={v!r}")
+        return f"{self.__class__.__name__}({', '.join(pair)})"
+
+    def __getstate__(self) -> dict[str, Any]:
+        state = self.__dict__.copy()
+        forest = state.pop("forest")
+        state = copy.deepcopy(state)
+        state["forest"] = self._serialize_forest(forest)
+        return state
+
+    def __setstate__(self, state: dict[str, Any]):
+        json_string: str = state["forest"]
+        state["forest"] = self._deserialize_forest(json_string)
+        self.__dict__.update(state)
+
     @staticmethod
     def _serialize_forest(forest: RandomCutForest) -> str:
         mapper = RandomCutForestMapper()
@@ -158,18 +183,6 @@ class RandomCutForestModel:
         if args.get("forest") is not None:
             args["forest"] = cls._deserialize_forest(args["forest"])  # type: ignore
         return cls(**args)
-
-    def __getstate__(self) -> dict[str, Any]:
-        state = self.__dict__.copy()
-        forest = state.pop("forest")
-        state = copy.deepcopy(state)
-        state["forest"] = self._serialize_forest(forest)
-        return state
-
-    def __setstate__(self, state: dict[str, Any]):
-        json_string: str = state["forest"]
-        state["forest"] = self._deserialize_forest(json_string)
-        self.__dict__.update(state)
 
     def _convert_to_java_array(self, point: Array1D) -> JArray:
         return JArray.of(np.array(point), JDouble)

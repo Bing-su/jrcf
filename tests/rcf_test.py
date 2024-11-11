@@ -117,3 +117,11 @@ def test_input_type():
     arr4 = UserList(np.random.random(5).tolist())
     model.score(arr4)
     model.update(arr4)
+
+
+def test_repr():
+    model = RandomCutForestModel(dimensions=5)
+    repr_str = repr(model)
+
+    assert "RandomCutForestModel(" in repr_str
+    assert "dimensions=5" in repr_str
