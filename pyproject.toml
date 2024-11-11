@@ -20,6 +20,9 @@ test = [
     "pytest",
     "pytest-cov",
     "hypothesis",
+    "joblib",
+    "cloudpickle",
+    "skops",
 ]
 
 [build-system]
