@@ -160,6 +160,8 @@ class RandomCutForestModel:
         """
         mapper = RandomCutForestMapper()
         mapper.setSaveExecutorContextEnabled(True)
+        mapper.setSaveTreeStateEnabled(True)
+        mapper.setPartialTreeStateEnabled(True)
         json_mapper = ObjectMapper()
         forest_state = mapper.toState(forest)
         json_string = json_mapper.writeValueAsString(forest_state)
@@ -230,6 +232,9 @@ class RandomCutForestModel:
         )
         "transformed is a java array of JFloat"
         return np.array(transformed)
+
+    def is_output_ready(self) -> bool:
+        return self.forest.isOutputReady()
 
     def score(self, point: Array1D) -> float:
         """
