@@ -26,7 +26,7 @@ Array1D: TypeAlias = Sequence[float] | np.ndarray
 
 
 class RCFArgs(TypedDict):
-    forest: RandomCutForest | None
+    forest: str | None
     dimensions: int
     shingle_size: int
     num_trees: int
