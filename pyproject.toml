@@ -1,6 +1,6 @@
 [project]
 name = "jrcf"
-version = "0.2.0-dev.0"
+version = "0.2.0"
 description = "AWS's Java Rancom Cut Forest"
 authors = [
     { name = "Dowon", email = "ks2515@naver.com" },
