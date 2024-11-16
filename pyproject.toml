@@ -7,6 +7,13 @@ dependencies = ["jpype1", "numpy>=1.21"]
 readme = "README.md"
 requires-python = ">=3.10"
 license.text = "Apache-2.0"
+keywords = ["rcf", "random-cut-forest", "anomaly-detection"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Java",
+    "Programming Language :: Python :: 3 :: Only",
+]
 
 [project.urls]
 Repository = "https://github.com/Bing-su/jrcf"
