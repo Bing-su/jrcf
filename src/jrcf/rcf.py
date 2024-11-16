@@ -54,7 +54,7 @@ class RandomCutForestModel:
         sample_size: int = 256,
         output_after: int | None = None,
         random_seed: int | None = None,
-        parallel_execution_enabled: bool = True,
+        parallel_execution_enabled: bool = False,
         thread_pool_size: int | None = None,
         lam: float | None = None,
     ):
@@ -78,7 +78,10 @@ class RandomCutForestModel:
         random_seed : int, optional
             A seed value used to initialize the random number generators in this forest. Defaults to None.
         parallel_execution_enabled : bool, optional
-            If True, then the forest will create an internal threadpool. Forest updates and traversals will be submitted to this threadpool, and individual trees will be updated or traversed in parallel. For larger shingle sizes, dimensions, and number of trees, parallelization may improve throughput. We recommend users benchmark against their target use case. Defaults to True.
+            If True, then the forest will create an internal threadpool.
+            Forest updates and traversals will be submitted to this threadpool, and individual trees will be updated or traversed in parallel.
+            For larger shingle sizes, dimensions, and number of trees, parallelization may improve throughput.
+            We recommend users benchmark against their target use case. Defaults to False.
         thread_pool_size : int, optional
             The number of threads to use in the internal threadpool. Defaults to None.
         lam : float, optional
