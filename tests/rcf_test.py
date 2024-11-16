@@ -52,7 +52,7 @@ def test_rcf_init(  # noqa: PLR0913
         pytest.fail(f"Unexpected exception: {e}")
 
     assert model.forest is not None
-    assert model.get_shingle_size() == dimensions * shingle_size
+    assert model.get_dimensions() == dimensions * shingle_size
 
     dump = model.to_dict()
     assert dump["dimensions"] == model.dimensions
@@ -74,7 +74,7 @@ def test_rcf_init(  # noqa: PLR0913
 
     loaded = RandomCutForestModel.from_dict(loaded_json)
     assert loaded.forest is not None
-    assert loaded.get_shingle_size() == dimensions * shingle_size
+    assert loaded.get_dimensions() == dimensions * shingle_size
 
     assert model.dimensions == loaded.dimensions
     assert model.shingle_size == loaded.shingle_size
@@ -85,6 +85,41 @@ def test_rcf_init(  # noqa: PLR0913
     assert model.parallel_execution_enabled == loaded.parallel_execution_enabled
     assert model.thread_pool_size == loaded.thread_pool_size
     assert model.lam == loaded.lam
+
+
+@given(
+    dimensions=st.integers(min_value=1, max_value=10),
+    shingle_size=st.integers(min_value=1, max_value=8),
+    num_trees=st.integers(min_value=1, max_value=100),
+    sample_size=st.integers(min_value=4, max_value=512),
+    output_after=st.integers(min_value=1, max_value=512),
+    lam=st.floats(min_value=0, max_value=1),
+)
+@settings(deadline=None)
+def test_rcf_methods(  # noqa: PLR0913
+    dimensions: int,
+    shingle_size: int,
+    num_trees: int,
+    sample_size: int,
+    output_after: int,
+    lam: float,
+):
+    model = RandomCutForestModel(
+        dimensions=dimensions,
+        shingle_size=shingle_size,
+        num_trees=num_trees,
+        sample_size=sample_size,
+        output_after=output_after,
+        parallel_execution_enabled=False,
+        lam=lam,
+    )
+
+    assert model.get_number_of_trees() == num_trees
+    assert model.get_sample_size() == sample_size
+    assert model.get_shingle_size() == shingle_size
+    assert model.get_output_after() == output_after
+    assert model.get_dimensions() == dimensions * shingle_size
+    assert model.get_time_decay() == lam
 
 
 @given(dim=st.integers(min_value=1, max_value=100))
@@ -127,14 +162,6 @@ def test_repr():
 
     assert "RandomCutForestModel(" in repr_str
     assert "dimensions=5" in repr_str
-
-
-@given(dimensions=st.integers(1, 10), shingle_size=st.integers(1, 10))
-def test_get_shingle_size(dimensions: int, shingle_size: int):
-    model = RandomCutForestModel(dimensions=dimensions, shingle_size=shingle_size)
-    size = model.get_shingle_size()
-    assert isinstance(size, int)
-    assert size == dimensions * shingle_size
 
 
 def test_thread_pool_size():

@@ -206,14 +206,60 @@ class RandomCutForestModel:
     def _convert_to_java_array(self, point: Array1D) -> JArray:
         return JArray.of(np.array(point), JFloat)
 
+    def get_number_of_trees(self) -> int:
+        """
+        Returns
+        -------
+        int
+            the number of trees in the forest.
+        """
+        return int(self.forest.getNumberOfTrees())
+
+    def get_sample_size(self) -> int:
+        """
+        Returns
+        -------
+        int
+            the sample size used by stream samplers in this forest.
+        """
+        return int(self.forest.getSampleSize())
+
     def get_shingle_size(self) -> int:
         """
         Returns
         -------
         int
-            Shingle size of random cut trees.
+            the shingle size used by the point store.
+        """
+        return int(self.forest.getShingleSize())
+
+    def get_output_after(self) -> int:
+        """
+        Returns
+        -------
+        int
+            the number of points required by stream samplers before results are returned.
+        """
+        return int(self.forest.getOutputAfter())
+
+    def get_dimensions(self) -> int:
+        """
+        Returns
+        -------
+        int
+            the number of dimensions in the data points accepted by this forest.
+            i.e. input dimensions * shingle size
         """
         return int(self.forest.getDimensions())
+
+    def get_time_decay(self) -> float:
+        """
+        Returns
+        -------
+        float
+            the decay factor used by stream samplers in this forest.
+        """
+        return float(self.forest.getTimeDecay())
 
     def get_thread_pool_size(self) -> int:
         return int(self.forest.getThreadPoolSize())

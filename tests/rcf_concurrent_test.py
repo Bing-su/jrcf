@@ -9,7 +9,7 @@ from jrcf.rcf import RandomCutForestModel
 
 
 def create_and_update():
-    model = RandomCutForestModel(dimensions=5)
+    model = RandomCutForestModel(dimensions=5, parallel_execution_enabled=True)
 
     scores = []
     for _ in range(5):
@@ -35,7 +35,7 @@ def test_threadpool_with_shared_model():
     """
     이 테스트를 통과한다는 것이 스레드 안전을 의미하는 것은 아님
     """
-    model = RandomCutForestModel(dimensions=5)
+    model = RandomCutForestModel(dimensions=5, parallel_execution_enabled=True)
 
     tasks = []
     with ThreadPoolExecutor(5) as executor:
@@ -69,7 +69,7 @@ def test_process_pool_with_shared_model():
     별도의 프로세스에서 동작하는 model.update는 원본 객체에 영향을 주지 않음
     이 테스트는 어쨌거나 멀티프로세싱에서 동작하는지 확인하기 위한 것
     """
-    model = RandomCutForestModel(dimensions=5)
+    model = RandomCutForestModel(dimensions=5, parallel_execution_enabled=True)
 
     tasks = []
     # https://jpype.readthedocs.io/en/stable/userguide.html#multiprocessing
