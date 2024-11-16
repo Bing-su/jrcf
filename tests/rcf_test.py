@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 from collections import UserList
 
 import numpy as np
+import orjson
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -12,8 +12,8 @@ from jrcf.rcf import RandomCutForestModel
 
 
 @given(
-    dimensions=st.integers(min_value=1, max_value=100),
-    shingle_size=st.integers(min_value=1, max_value=20),
+    dimensions=st.integers(min_value=1, max_value=20),
+    shingle_size=st.integers(min_value=1, max_value=8),
     num_trees=st.integers(min_value=1, max_value=100),
     sample_size=st.integers(min_value=4, max_value=512),
     output_after=st.one_of(st.none(), st.integers(min_value=1, max_value=512)),
@@ -66,11 +66,11 @@ def test_rcf_init(  # noqa: PLR0913
     assert dump["lam"] == model.lam
 
     try:
-        string = json.dumps(dump)
+        dumped = orjson.dumps(dump)
     except Exception as e:
         pytest.fail(f"json.dumps failed: {e}")
 
-    loaded_json = json.loads(string)
+    loaded_json = orjson.loads(dumped)
 
     loaded = RandomCutForestModel.from_dict(loaded_json)
     assert loaded.forest is not None

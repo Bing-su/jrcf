@@ -2,9 +2,7 @@
 name = "jrcf"
 version = "0.2.0"
 description = "AWS's Java Rancom Cut Forest"
-authors = [
-    { name = "Dowon", email = "ks2515@naver.com" },
-]
+authors = [{ name = "Dowon", email = "ks2515@naver.com" }]
 dependencies = ["jpype1", "numpy>=1.21"]
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,12 +12,7 @@ license.text = "Apache-2.0"
 Repository = "https://github.com/Bing-su/jrcf"
 
 [project.optional-dependencies]
-dev = [
-    "ruff",
-    "pre-commit-uv",
-    "tqdm",
-    "rich",
-]
+dev = ["ruff", "pre-commit-uv", "tqdm", "rich"]
 test = [
     "pytest",
     "pytest-cov",
@@ -27,6 +20,7 @@ test = [
     "joblib",
     "cloudpickle",
     "skops",
+    "orjson",
 ]
 
 [build-system]
