@@ -137,23 +137,34 @@ def test_train(dim: int):
 
 
 def test_input_type():
-    model = RandomCutForestModel(dimensions=5)
+    dim = 5
+    model = RandomCutForestModel(dimensions=dim)
 
-    arr = np.random.random(5)
+    arr = np.random.random(dim)
     model.score(arr)
     model.update(arr)
 
-    arr2 = np.random.random(5).tolist()
+    arr2 = np.random.random(dim).tolist()
     model.score(arr2)
     model.update(arr2)
 
-    arr3 = tuple(np.random.random(5).tolist())
+    arr3 = tuple(np.random.random(dim).tolist())
     model.score(arr3)
     model.update(arr3)
 
-    arr4 = UserList(np.random.random(5).tolist())
+    arr4 = UserList(np.random.random(dim).tolist())
     model.score(arr4)
     model.update(arr4)
+
+    arr5 = list(range(dim))
+    model.score(arr5)
+    model.update(arr5)
+
+    class MyInt(int): ...
+
+    arr6 = [MyInt(i) for i in range(dim)]
+    model.score(arr6)
+    model.update(arr6)
 
 
 def test_repr():
@@ -164,10 +175,15 @@ def test_repr():
     assert "dimensions=5" in repr_str
 
 
-def test_thread_pool_size():
-    model = RandomCutForestModel()
-    thread_pool_size = model.get_thread_pool_size()
-    assert isinstance(thread_pool_size, int)
+@given(thread_pool_size=st.one_of(st.integers(1, 8), st.none()))
+def test_thread_pool_size(thread_pool_size: int | None):
+    model = RandomCutForestModel(
+        parallel_execution_enabled=True, thread_pool_size=thread_pool_size
+    )
+    ret = model.get_thread_pool_size()
+    assert type(ret) is int
+    if thread_pool_size is not None:
+        assert ret == thread_pool_size
 
 
 @given(dimensions=st.integers(1, 10), shingle_size=st.integers(1, 10))
