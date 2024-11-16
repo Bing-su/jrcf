@@ -83,7 +83,8 @@ class RandomCutForestModel:
             For larger shingle sizes, dimensions, and number of trees, parallelization may improve throughput.
             We recommend users benchmark against their target use case. Defaults to False.
         thread_pool_size : int, optional
-            The number of threads to use in the internal threadpool. Defaults to None.
+            The number of threads to use in the internal threadpool.
+            if None, `Number of available processors - 1` is used. Defaults to None.
         lam : float, optional
             The decay factor used by stream samplers in this forest.
             see: https://github.com/aws/random-cut-forest-by-aws/tree/4.2.0-java/Java#choosing-a-timedecay-value-for-your-application
@@ -122,7 +123,7 @@ class RandomCutForestModel:
                 .internalShinglingEnabled(True)
             )
             if self.thread_pool_size is not None:
-                builder.threadPoolSize(self.thread_pool_size)
+                builder = builder.threadPoolSize(self.thread_pool_size)
 
             if self.random_seed is not None:
                 builder = builder.randomSeed(self.random_seed)

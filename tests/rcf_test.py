@@ -186,6 +186,14 @@ def test_thread_pool_size(thread_pool_size: int | None):
         assert ret == thread_pool_size
 
 
+@given(thread_pool_size=st.one_of(st.integers(1, 8), st.none()))
+def test_thread_pool_size_disabled(thread_pool_size: int | None):
+    model = RandomCutForestModel(
+        parallel_execution_enabled=False, thread_pool_size=thread_pool_size
+    )
+    assert model.get_thread_pool_size() == 0
+
+
 @given(dimensions=st.integers(1, 10), shingle_size=st.integers(1, 10))
 def test_transform_to_shingled_point(dimensions: int, shingle_size: int):
     model = RandomCutForestModel(dimensions=dimensions, shingle_size=shingle_size)
