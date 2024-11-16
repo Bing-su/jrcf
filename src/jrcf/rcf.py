@@ -137,9 +137,7 @@ class RandomCutForestModel:
             yield k, v
 
     def __repr__(self) -> str:
-        pair = []
-        for k, v in self.__rich_repr__():
-            pair.append(f"{k}={v!r}")
+        pair = [f"{k}={v!r}" for k, v in self.__rich_repr__()]
         return f"{self.__class__.__name__}({', '.join(pair)})"
 
     def __getstate__(self) -> dict[str, Any]:
