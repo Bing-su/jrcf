@@ -27,7 +27,6 @@ test = [
     "joblib",
     "cloudpickle",
     "skops",
-    "orjson",
 ]
 
 [build-system]

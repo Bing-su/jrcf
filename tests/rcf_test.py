@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import json
 from collections import UserList
 
 import numpy as np
-import orjson
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -66,11 +66,11 @@ def test_rcf_init(  # noqa: PLR0913
     assert dump["lam"] == model.lam
 
     try:
-        dumped = orjson.dumps(dump)
+        dumped = json.dumps(dump)
     except Exception as e:
-        pytest.fail(f"json.dumps failed: {e}")
+        pytest.fail(f"json dumps failed: {e}")
 
-    loaded_json = orjson.loads(dumped)
+    loaded_json = json.loads(dumped)
 
     loaded = RandomCutForestModel.from_dict(loaded_json)
     assert loaded.forest is not None
