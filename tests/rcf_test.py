@@ -202,3 +202,19 @@ def test_transform_to_shingled_point(dimensions: int, shingle_size: int):
     assert isinstance(shingled_point, np.ndarray)
     assert shingled_point.dtype == np.float32
     assert shingled_point.shape == (dimensions * shingle_size,)
+
+
+def test_is_output_ready():
+    dim = 5
+    after = 3
+    model = RandomCutForestModel(dimensions=dim, shingle_size=1, output_after=after)
+    ready = model.is_output_ready()
+
+    assert type(ready) is bool
+    assert ready is False
+
+    for _ in range(after):
+        model.update(np.random.random(dim))
+
+    ready = model.is_output_ready()
+    assert ready is True
