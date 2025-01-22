@@ -12,4 +12,9 @@ libs = here / "lib" / "*"
 jpype.addClassPath(str(libs))
 jpype.startJVM(convertStrings=False)
 
-__all__ = ["__version__"]
+
+def java_gc():
+    jpype.java.lang.System.gc()
+
+
+__all__ = ["__version__", "java_gc"]
