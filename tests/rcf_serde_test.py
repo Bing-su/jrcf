@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import pickle
 from tempfile import TemporaryDirectory
+from typing import cast
 from uuid import uuid4
 
 import cloudpickle
 import joblib
+import jsonpickle
 import numpy as np
 import pytest
 import skops.io
@@ -141,6 +143,35 @@ def test_skops(dim: int, compression: int):
     pickled = skops.io.dumps(model, compression=compression)
     trusted = ["jrcf.rcf.RandomCutForestModel"]
     unpickled = skops.io.loads(pickled, trusted=trusted)
+
+    assert_attrs(model, unpickled)
+
+    assert unpickled.is_output_ready()
+
+    score = unpickled.score(anomaly)
+    assert score >= 1.5
+
+    for point in data:
+        unpickled.update(point)
+
+
+@given(dim=st.integers(min_value=1, max_value=10))
+@settings(deadline=None)
+def test_jsonpickle(dim: int):
+    model = RandomCutForestModel(dimensions=dim, output_after=NUM_DATA)
+    data = np.random.random((NUM_DATA, dim))
+    for point in data:
+        model.update(point)
+
+    assert model.is_output_ready()
+
+    anomaly = np.random.random(dim) + 1000
+    score = model.score(anomaly)
+    assert score >= 1.5
+
+    pickled = jsonpickle.dumps(model)
+    unpickled = jsonpickle.loads(pickled)
+    unpickled = cast(RandomCutForestModel, unpickled)
 
     assert_attrs(model, unpickled)
 
