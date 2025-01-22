@@ -36,7 +36,7 @@ jobs:
           java-package: "jre"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v5
 
       - name: Test on ${{ matrix.os }} with python ${{ matrix.python-version }}
         run: uv run --all-extras --python-preference only-managed --python ${{ matrix.python-version }} pytest
