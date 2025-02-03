@@ -14,6 +14,13 @@ jpype.startJVM(convertStrings=False)
 
 
 def java_gc():
+    """
+    Trigger the Java garbage collector.
+
+    This function calls the garbage collector of the Java Virtual Machine (JVM)
+    using the JPype library. It invokes the `gc` method on the `System` class
+    from the `java.lang` package to request garbage collection.
+    """
     jpype.java.lang.System.gc()
 
 
