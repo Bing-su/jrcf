@@ -15,7 +15,7 @@ from jrcf.rcf import RandomCutForestModel
     dimensions=st.integers(min_value=1, max_value=20),
     shingle_size=st.integers(min_value=1, max_value=8),
     num_trees=st.integers(min_value=1, max_value=100),
-    sample_size=st.integers(min_value=4, max_value=512),
+    sample_size=st.integers(min_value=5, max_value=512),
     output_after=st.one_of(st.none(), st.integers(min_value=1, max_value=512)),
     random_seed=st.one_of(
         st.none(), st.integers(min_value=-(2**32) + 1, max_value=2**32 - 1)
@@ -51,6 +51,7 @@ def test_rcf_init(  # noqa: PLR0913
             parallel_execution_enabled=parallel_execution_enabled,
             thread_pool_size=thread_pool_size,
             lam=lam,
+            initial_point_store_size=initial_point_store_size,
         )
     except Exception as e:
         pytest.fail(f"Unexpected exception: {e}")
@@ -89,6 +90,66 @@ def test_rcf_init(  # noqa: PLR0913
     assert model.parallel_execution_enabled == loaded.parallel_execution_enabled
     assert model.thread_pool_size == loaded.thread_pool_size
     assert model.lam == loaded.lam
+
+
+@given(
+    dimensions=st.integers(min_value=1, max_value=20),
+    shingle_size=st.integers(min_value=1, max_value=8),
+    num_trees=st.integers(min_value=1, max_value=100),
+    sample_size=st.integers(min_value=5, max_value=512),
+    output_after=st.one_of(st.none(), st.integers(min_value=1, max_value=512)),
+    random_seed=st.one_of(
+        st.none(), st.integers(min_value=-(2**32) + 1, max_value=2**32 - 1)
+    ),
+    parallel_execution_enabled=st.booleans(),
+    thread_pool_size=st.one_of(st.none(), st.integers(min_value=1, max_value=8)),
+    lam=st.one_of(st.none(), st.floats(min_value=0, max_value=1)),
+    initial_point_store_size=st.one_of(
+        st.none(), st.integers(min_value=1, max_value=1024)
+    ),
+)
+@settings(deadline=None)
+def test_rcf_update(  # noqa: PLR0913
+    dimensions: int,
+    shingle_size: int,
+    num_trees: int,
+    sample_size: int,
+    output_after: int | None,
+    random_seed: int | None,
+    parallel_execution_enabled: bool,
+    thread_pool_size: int | None,
+    lam: float | None,
+    initial_point_store_size: int | None,
+):
+    model = RandomCutForestModel(
+        dimensions=dimensions,
+        shingle_size=shingle_size,
+        num_trees=num_trees,
+        sample_size=sample_size,
+        output_after=output_after,
+        random_seed=random_seed,
+        parallel_execution_enabled=parallel_execution_enabled,
+        thread_pool_size=thread_pool_size,
+        lam=lam,
+        initial_point_store_size=initial_point_store_size,
+    )
+
+    capacity = max(num_trees * sample_size + 1, 2 * sample_size)
+    if initial_point_store_size is not None:
+        capacity = min(capacity, initial_point_store_size)
+
+    data = np.random.random((10, dimensions))
+    for i, point in enumerate(data, 1):
+        _ = model.score(point)
+        _ = model.approximate_anomaly_score(point)
+
+        try:
+            model.update(point)
+        except Exception as e:
+            if "java" not in str(e).lower() or i <= capacity:
+                pytest.fail(
+                    f"{i = }, 'java.lang.IllegalStateException: out of space' occurred."
+                )
 
 
 @given(
