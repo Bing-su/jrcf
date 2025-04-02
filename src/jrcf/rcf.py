@@ -36,6 +36,7 @@ class RCFArgs(TypedDict):
     parallel_execution_enabled: bool
     thread_pool_size: int | None
     lam: float | None
+    initial_point_store_size: int | None
 
 
 class RandomCutForestModel:
@@ -57,6 +58,7 @@ class RandomCutForestModel:
         parallel_execution_enabled: bool = False,
         thread_pool_size: int | None = None,
         lam: float | None = None,
+        initial_point_store_size: int | None = None,
     ):
         """
         Initialize the RandomCutForest model.
@@ -89,6 +91,8 @@ class RandomCutForestModel:
             The decay factor used by stream samplers in this forest.
             see: https://github.com/aws/random-cut-forest-by-aws/tree/4.2.0-java/Java#choosing-a-timedecay-value-for-your-application
             If None, default value is `1.0 / (10 * sample_size)`. Defaults to None.
+        initial_point_store_size: int, optional
+            The initial size of the point store. If None, `2 * sample_size` is used. Defaults to None.
 
         References
         ----------
@@ -105,6 +109,11 @@ class RandomCutForestModel:
         self.parallel_execution_enabled = parallel_execution_enabled
         self.thread_pool_size = thread_pool_size
         self.lam = lam if lam is not None else 1.0 / (10 * sample_size)
+        self.initial_point_store_size = (
+            initial_point_store_size
+            if initial_point_store_size is not None
+            else 2 * sample_size
+        )
 
         if forest is not None:
             self.forest = forest
@@ -122,11 +131,14 @@ class RandomCutForestModel:
                 .outputAfter(self.output_after)
                 .internalShinglingEnabled(True)
             )
-            if self.thread_pool_size is not None:
+            if thread_pool_size is not None:
                 builder = builder.threadPoolSize(self.thread_pool_size)
 
-            if self.random_seed is not None:
+            if random_seed is not None:
                 builder = builder.randomSeed(self.random_seed)
+
+            if initial_point_store_size is not None:
+                builder = builder.initialPointStoreSize(self.initial_point_store_size)
 
             self.forest = builder.build()
 
@@ -191,6 +203,7 @@ class RandomCutForestModel:
             "parallel_execution_enabled": self.parallel_execution_enabled,
             "thread_pool_size": self.thread_pool_size,
             "lam": self.lam,
+            "initial_point_store_size": self.initial_point_store_size,
         }
 
     @classmethod

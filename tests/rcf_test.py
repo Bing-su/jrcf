@@ -23,6 +23,9 @@ from jrcf.rcf import RandomCutForestModel
     parallel_execution_enabled=st.booleans(),
     thread_pool_size=st.one_of(st.none(), st.integers(min_value=1, max_value=8)),
     lam=st.one_of(st.none(), st.floats(min_value=0, max_value=1)),
+    initial_point_store_size=st.one_of(
+        st.none(), st.integers(min_value=1, max_value=1024)
+    ),
 )
 @settings(deadline=None)
 def test_rcf_init(  # noqa: PLR0913
@@ -35,6 +38,7 @@ def test_rcf_init(  # noqa: PLR0913
     parallel_execution_enabled: bool,
     thread_pool_size: int | None,
     lam: float | None,
+    initial_point_store_size: int | None,
 ):
     try:
         model = RandomCutForestModel(
