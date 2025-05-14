@@ -23,6 +23,7 @@ dev = ["ruff", "pre-commit-uv", "tqdm", "rich"]
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-pretty",
     "hypothesis",
     "joblib",
     "cloudpickle",
