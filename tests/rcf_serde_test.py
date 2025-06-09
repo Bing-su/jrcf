@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pickle
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import cast
 from uuid import uuid4
@@ -182,3 +183,30 @@ def test_jsonpickle(dim: int):
 
     for point in data:
         unpickled.update(point)
+
+
+here = Path(__file__).parent
+artifact = here / "artifact"
+files = [p for p in artifact.iterdir() if p.is_file()]
+
+
+@pytest.mark.parametrize("file", files)
+def test_pre_dumped(file: Path):
+    if file.name.endswith(".pkl"):
+        with file.open("rb") as f:
+            model = pickle.load(f)  # noqa: S301
+    elif file.name.endswith(".json"):
+        with file.open("rb") as f:
+            model = jsonpickle.loads(f.read())
+    elif file.name.endswith(".skops"):
+        trusted = ["jrcf.rcf.RandomCutForestModel"]
+        model = skops.io.load(file, trusted=trusted)
+    else:
+        pytest.skip(f"Unsupported file format: {file}")
+
+    assert isinstance(model, RandomCutForestModel)
+    assert model.is_output_ready()
+
+    anomaly = [9999] * model.dimensions
+    score = model.score(anomaly)
+    assert score >= 1.5
