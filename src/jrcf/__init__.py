@@ -1,4 +1,6 @@
+import os
 from pathlib import Path
+from shlex import split
 
 import jpype
 import jpype.imports
@@ -8,9 +10,10 @@ from .__version__ import __version__
 
 here = Path(__file__).parent
 libs = here / "lib" / "*"
+java_opts = split(os.environ.get("JAVA_OPTS", ""))
 
 jpype.addClassPath(str(libs))
-jpype.startJVM(convertStrings=False)
+jpype.startJVM(*java_opts, convertStrings=False)
 
 
 def java_gc():
