@@ -6,7 +6,7 @@ https://github.com/aws/random-cut-forest-by-aws 저장소의 `python_rcf_wrapper
 
 ## Requirements
 
-- Java 8 or later
+- Java 11 or later
 
 ## Installation
 

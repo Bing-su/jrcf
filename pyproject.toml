@@ -1,7 +1,7 @@
 [project]
 name = "jrcf"
-version = "0.4.0"
-description = "AWS's Java Rancom Cut Forest"
+version = "0.5.0"
+description = "AWS's Java Random Cut Forest"
 authors = [{ name = "Dowon", email = "ks2515@naver.com" }]
 dependencies = ["jpype1", "numpy>=1.21"]
 readme = "README.md"
